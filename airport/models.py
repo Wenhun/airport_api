@@ -59,7 +59,7 @@ class Route(models.Model):
     distance = models.FloatField()
 
     def __str__(self) -> str:
-        return f"{self.origin} to {self.destination}"
+        return f"{self.sourse} - {self.destination}"
 
 
 class AirplaneType(models.Model):
@@ -78,7 +78,7 @@ class Airplane(models.Model):
         """Generate a file path for the airplane image."""
         _, extension = os.path.splitext(filename)
         filename = f"{slugify(instance.name)}-{uuid.uuid4()}{extension}"
-        return os.path.join("uploads/planes/", filename)
+        return os.path.join("uploads", "planes", filename)
 
     name = models.CharField(max_length=255)
     rows = models.IntegerField()
@@ -113,7 +113,7 @@ class Crew(models.Model):
         """Generate a file path for the crew member's photo."""
         _, extension = os.path.splitext(filename)
         filename = f"{slugify(instance.full_name)}-{uuid.uuid4()}{extension}"
-        return os.path.join("uploads/crew_photos/", filename)
+        return os.path.join("uploads", "crew_photos", filename)
 
     firt_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -136,6 +136,7 @@ class Flight(models.Model):
     flight_number = models.CharField(max_length=255, unique=True)
     route = models.ForeignKey(Route, on_delete=models.CASCADE)
     crew = models.ManyToManyField(Crew, related_name="flights")
+    airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE)
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
 

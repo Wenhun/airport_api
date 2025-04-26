@@ -44,6 +44,11 @@ class Airport(models.Model):
     name = models.CharField(max_length=255)
     closest_big_city = models.ForeignKey(City, on_delete=models.CASCADE)
 
+    @property
+    def detail_name(self) -> str:
+        """Return the full name of the airport."""
+        return f"{self.code} ({self.closest_big_city.name})"
+
     def __str__(self) -> str:
         return f"{self.name} ({self.code})"
 

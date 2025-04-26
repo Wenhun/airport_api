@@ -37,8 +37,19 @@ class AirportDetailSerializer(AirportSerializer):
 
 
 class RouteSerializer(serializers.ModelSerializer):
-    sourse = AirportSerializer()
-    destination = AirportSerializer()
+    class Meta:
+        model = models.Route
+        fields = ("id", "sourse", "destination", "distance")
+
+
+class RouteListSerializer(RouteSerializer):
+    sourse = serializers.CharField(source="sourse.detail_name", read_only=True)
+    destination = serializers.CharField(source="destination.detail_name", read_only=True)
+
+
+class RouteDetailSerializer(serializers.ModelSerializer):
+    sourse = AirportListSerializer()
+    destination = AirportListSerializer()
 
     class Meta:
         model = models.Route

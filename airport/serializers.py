@@ -17,27 +17,23 @@ class CitySerializer(serializers.ModelSerializer):
 class CityListSerializer(CitySerializer):
     country = serializers.CharField(source="country.name", read_only=True)
 
-    class Meta:
-        model = models.City
-        fields = ("id", "name", "country")
-
 
 class CityDetailSerializer(CitySerializer):
     country = CountrySerializer()
 
-    class Meta:
-        model = models.City
-        fields = ("id", "name", "country")
-        read_only_fields = ("id",)
-
 
 class AirportSerializer(serializers.ModelSerializer):
-    closest_big_city = CitySerializer()
-
     class Meta:
         model = models.Airport
         fields = ("code", "name", "closest_big_city")
-        read_only_fields = ("code",)
+
+
+class AirportListSerializer(AirportSerializer):
+    closest_big_city = serializers.CharField(source="closest_big_city.name", read_only=True)
+
+
+class AirportDetailSerializer(AirportSerializer):
+    closest_big_city = CitySerializer()
 
 
 class RouteSerializer(serializers.ModelSerializer):

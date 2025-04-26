@@ -40,6 +40,18 @@ class AirportViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AirportSerializer
 
 
+    def get_serializer_class(self) -> ModelSerializer:
+        """Return the appropriate serializer class based on the request."""
+
+        if self.action == "list":
+            return serializers.AirportListSerializer
+        
+        elif self.action == "retrieve":
+            return serializers.AirportDetailSerializer
+        
+        return super().get_serializer_class()
+
+
 class RouteViewSet(viewsets.ModelViewSet):
     """ViewSet for the Route model."""
 

@@ -9,11 +9,26 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.City
+        fields = ("id", "name", "country")
+
+
+class CityListSerializer(CitySerializer):
+    country = serializers.CharField(source="country.name", read_only=True)
+
+    class Meta:
+        model = models.City
+        fields = ("id", "name", "country")
+
+
+class CityDetailSerializer(CitySerializer):
     country = CountrySerializer()
 
     class Meta:
         model = models.City
         fields = ("id", "name", "country")
+        read_only_fields = ("id",)
 
 
 class AirportSerializer(serializers.ModelSerializer):

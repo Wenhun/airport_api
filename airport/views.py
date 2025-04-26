@@ -5,6 +5,8 @@ import airport.serializers as serializers
 
 from rest_framework import viewsets
 
+from rest_framework.serializers import ModelSerializer
+
 
 class CountryViewSet(viewsets.ModelViewSet):
     """ViewSet for the Country model."""
@@ -18,6 +20,17 @@ class CityViewSet(viewsets.ModelViewSet):
 
     queryset = models.City.objects.all()
     serializer_class = serializers.CitySerializer
+
+    def get_serializer_class(self) -> ModelSerializer:
+        """Return the appropriate serializer class based on the request."""
+
+        if self.action == "list":
+            return serializers.CityListSerializer
+        
+        elif self.action == "retrieve":
+            return serializers.CityDetailSerializer
+        
+        return super().get_serializer_class()
 
 
 class AirportViewSet(viewsets.ModelViewSet):

@@ -27,7 +27,7 @@ class CityViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return serializers.CityListSerializer
         
-        elif self.action == "retrieve":
+        if self.action == "retrieve":
             return serializers.CityDetailSerializer
         
         return super().get_serializer_class()
@@ -46,7 +46,7 @@ class AirportViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return serializers.AirportListSerializer
         
-        elif self.action == "retrieve":
+        if self.action == "retrieve":
             return serializers.AirportDetailSerializer
         
         return super().get_serializer_class()
@@ -65,7 +65,7 @@ class RouteViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             return serializers.RouteListSerializer
         
-        elif self.action == "retrieve":
+        if self.action == "retrieve":
             return serializers.RouteDetailSerializer
         
         return super().get_serializer_class()
@@ -83,6 +83,20 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 
     queryset = models.Airplane.objects.all()
     serializer_class = serializers.AirplaneSerializer
+
+    def get_serializer_class(self) -> ModelSerializer:
+        """Return the appropriate serializer class based on the request."""
+
+        if self.action == "list":
+            return serializers.AirplaneListSerializer
+        
+        if self.action == "retrieve":
+            return serializers.AirplaneDetailSerializer
+        
+        if self.action == "upload_image":
+            return serializers.AirplaneImageSerializer
+        
+        return super().get_serializer_class()
 
 
 class FlightViewSet(viewsets.ModelViewSet):

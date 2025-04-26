@@ -19,7 +19,7 @@ class CityListSerializer(CitySerializer):
 
 
 class CityDetailSerializer(CitySerializer):
-    country = CountrySerializer()
+    country = CountrySerializer(read_only=True, many=False)
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class AirportListSerializer(AirportSerializer):
 
 
 class AirportDetailSerializer(AirportSerializer):
-    closest_big_city = CitySerializer()
+    closest_big_city = CitySerializer(read_only=True, many=False)
 
 
 class RouteSerializer(serializers.ModelSerializer):
@@ -48,8 +48,8 @@ class RouteListSerializer(RouteSerializer):
 
 
 class RouteDetailSerializer(serializers.ModelSerializer):
-    sourse = AirportListSerializer()
-    destination = AirportListSerializer()
+    sourse = AirportListSerializer(read_only=True, many=False)
+    destination = AirportListSerializer(read_only=True, many=False)
 
     class Meta:
         model = models.Route
@@ -63,11 +63,23 @@ class AirplaneTypeSerializer(serializers.ModelSerializer):
 
 
 class AirplaneSerializer(serializers.ModelSerializer):
-    airplane_type = AirplaneTypeSerializer()
-
     class Meta:
         model = models.Airplane
         fields = ("id", "name", "airplane_type", "image")
+
+
+class AirplaneListSerializer(AirplaneSerializer):
+    airplane_type = serializers.CharField(source="airplane_type.name", read_only=True)
+
+
+class AirplaneDetailSerializer(AirplaneSerializer):
+    airplane_type = AirplaneTypeSerializer(read_only=True, many=False)
+
+
+class AirplaneImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Airplane
+        fields = ("id", "image")
 
 
 class FlightSerializer(serializers.ModelSerializer):

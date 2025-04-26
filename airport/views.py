@@ -130,6 +130,20 @@ class CrewViewSet(viewsets.ModelViewSet):
     queryset = models.Crew.objects.all()
     serializer_class = serializers.CrewSerializer
 
+    def get_serializer_class(self) -> ModelSerializer:
+        """Return the appropriate serializer class based on the request."""
+
+        if self.action == "list":
+            return serializers.CrewListSerializer
+        
+        if self.action == "retrieve":
+            return serializers.CrewDetailSerializer
+        
+        if self.action == "upload_image":
+            return serializers.CrewImageSerializer
+        
+        return super().get_serializer_class()
+
 
 class OrderViewSet(viewsets.ModelViewSet):
     """ViewSet for the Order model."""

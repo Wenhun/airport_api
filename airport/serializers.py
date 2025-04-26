@@ -106,12 +106,23 @@ class PositionSerializer(serializers.ModelSerializer):
 
 
 class CrewSerializer(serializers.ModelSerializer):
-    position = PositionSerializer()
-
     class Meta:
         model = models.Crew
         fields = ("id", "first_name", "last_name", "position", "photo")
 
+
+class CrewListSerializer(CrewSerializer):
+    position = serializers.CharField(source="position.name", read_only=True)
+
+
+class CrewDetailSerializer(CrewSerializer):
+    position = PositionSerializer(read_only=True, many=False)
+
+
+class CrewImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Crew
+        fields = ("id", "photo")
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -120,9 +131,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    flight = FlightSerializer()
-    order = OrderSerializer()
-
     class Meta:
         model = models.Ticket
         fields = ("id", "flight", "order", "seat", "row")

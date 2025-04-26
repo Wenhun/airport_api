@@ -115,7 +115,7 @@ class Crew(models.Model):
         filename = f"{slugify(instance.full_name)}-{uuid.uuid4()}{extension}"
         return os.path.join("uploads", "crew_photos", filename)
 
-    firt_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
     photo = models.ImageField(
@@ -124,10 +124,10 @@ class Crew(models.Model):
     @property
     def full_name(self) -> str:
         """Return the full name of the crew member."""
-        return f"{self.firt_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name}"
 
     def __str__(self) -> str:
-        return f"{self.firt_name} {self.last_name} ({self.position})"
+        return f"{self.first_name} {self.last_name} ({self.position})"
 
 
 class Flight(models.Model):

@@ -2,6 +2,7 @@ asgiref==3.8.1
 click==8.1.8
 colorama==0.4.6
 Django==5.2
+djangorestframework==3.16.0
 dotenv==0.9.9
 mccabe==0.7.0
 mypy_extensions==1.1.0

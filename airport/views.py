@@ -105,6 +105,17 @@ class FlightViewSet(viewsets.ModelViewSet):
     queryset = models.Flight.objects.all()
     serializer_class = serializers.FlightSerializer
 
+    def get_serializer_class(self) -> ModelSerializer:
+        """Return the appropriate serializer class based on the request."""
+
+        if self.action == "list":
+            return serializers.FlightListSerializer
+        
+        if self.action == "retrieve":
+            return serializers.FlightDetailSerializer
+        
+        return super().get_serializer_class()
+
 
 class PositionViewSet(viewsets.ModelViewSet):
     """ViewSet for the Position model."""

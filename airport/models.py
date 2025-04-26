@@ -64,7 +64,7 @@ class Route(models.Model):
     distance = models.FloatField()
 
     def __str__(self) -> str:
-        return f"{self.sourse} - {self.destination}"
+        return f"{self.sourse.detail_name} - {self.destination.detail_name}"
 
 
 class AirplaneType(models.Model):

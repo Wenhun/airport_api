@@ -170,10 +170,22 @@ class Order(models.Model):
 class Ticket(models.Model):
     """Model representing a ticket."""
 
+    class SeatChoices(models.IntegerChoices):
+        A = 1, "A"
+        B = 2, "B"
+        C = 3, "C"
+        D = 4, "D"
+        E = 5, "E"
+        F = 6, "F"
+        G = 7, "G"
+        H = 8, "H"
+        I = 9, "I"
+        J = 10, "J"
+
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE)
     row = models.IntegerField()
-    seat = models.CharField(max_length=10)
+    seat = models.IntegerField(choices=SeatChoices.choices)
 
     def __str__(self) -> str:
         return f"{self.flight} - {self.row}{self.seat}"
@@ -185,21 +197,6 @@ class Ticket(models.Model):
         airplane: Airplane,
         error_to_raise: type[ValidationError]
     ) -> None:
-        """
-        Validate that the ticket's row and seat
-            are within the airplane's capacity.
-
-        Args:
-            row (int): The row number of the ticket.
-            seat (int): The seat number of the ticket.
-            airplane (Airplane): The airplane associated with the ticket.
-            error_to_raise (type[ValidationError]):
-                The exception to raise if validation fails.
-
-        Raises:
-            ValidationError:
-                If the row or seat is out of the airplane's valid range.
-        """
         for ticket_attr_value, ticket_attr_name, airplane_attr_name in [
             (row, "row", "rows"),
             (seat, "seat", "seats_in_row"),

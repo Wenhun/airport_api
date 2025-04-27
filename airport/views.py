@@ -18,7 +18,7 @@ class CountryViewSet(viewsets.ModelViewSet):
 class CityViewSet(viewsets.ModelViewSet):
     """ViewSet for the City model."""
 
-    queryset = models.City.objects.all()
+    queryset = models.City.objects.select_related("country").all()
     serializer_class = serializers.CitySerializer
 
     def get_serializer_class(self) -> ModelSerializer:
@@ -36,7 +36,7 @@ class CityViewSet(viewsets.ModelViewSet):
 class AirportViewSet(viewsets.ModelViewSet):
     """ViewSet for the Airport model."""
 
-    queryset = models.Airport.objects.all()
+    queryset = models.Airport.objects.select_related("closest_big_city").all()
     serializer_class = serializers.AirportSerializer
 
 
@@ -55,7 +55,8 @@ class AirportViewSet(viewsets.ModelViewSet):
 class RouteViewSet(viewsets.ModelViewSet):
     """ViewSet for the Route model."""
 
-    queryset = models.Route.objects.all()
+    queryset = models.Route.objects.select_related(
+        "sourse", "destination", "sourse__closest_big_city", "destination__closest_big_city").all()
     serializer_class = serializers.RouteSerializer
 
 
@@ -81,7 +82,7 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 class AirplaneViewSet(viewsets.ModelViewSet):
     """ViewSet for the Airplane model."""
 
-    queryset = models.Airplane.objects.all()
+    queryset = models.Airplane.objects.select_related("airplane_type").all()
     serializer_class = serializers.AirplaneSerializer
 
     def get_serializer_class(self) -> ModelSerializer:
@@ -102,7 +103,8 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 class FlightViewSet(viewsets.ModelViewSet):
     """ViewSet for the Flight model."""
 
-    queryset = models.Flight.objects.all()
+    queryset = models.Flight.objects.select_related("route", "airplane").prefetch_related(
+        "crew", "crew__position", "airplane__airplane_type").all()
     serializer_class = serializers.FlightSerializer
 
     def get_serializer_class(self) -> ModelSerializer:
@@ -127,7 +129,7 @@ class PositionViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     """ViewSet for the Crew model."""
 
-    queryset = models.Crew.objects.all()
+    queryset = models.Crew.objects.select_related("position").all()
     serializer_class = serializers.CrewSerializer
 
     def get_serializer_class(self) -> ModelSerializer:
@@ -148,7 +150,9 @@ class CrewViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     """ViewSet for the Order model."""
 
-    queryset = models.Order.objects.all()
+    queryset = models.Order.objects.select_related(
+        "flight", "flight__route", "flight__airplane").prefetch_related(
+        "flight__crew", "flight__crew__position").all()
     serializer_class = serializers.OrderSerializer
 
 

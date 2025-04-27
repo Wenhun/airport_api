@@ -82,22 +82,6 @@ class AirplaneImageSerializer(serializers.ModelSerializer):
         fields = ("id", "image")
 
 
-class FlightSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Flight
-        fields = ("id", "airplane", "route", "departure_time", "arrival_time")
-
-class FlightListSerializer(FlightSerializer):
-    airplane = serializers.CharField(source="airplane.name", read_only=True)
-    route = serializers.CharField(source="route.__str__", read_only=True)
-    departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-    arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
-
-
-class FlightDetailSerializer(FlightSerializer):
-    airplane = AirplaneListSerializer(read_only=True, many=False)
-    route = RouteListSerializer(read_only=True, many=False)
-
 
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -123,6 +107,28 @@ class CrewImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Crew
         fields = ("id", "photo")
+
+
+class FlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Flight
+        fields = ("id", "airplane", "route", "departure_time", "arrival_time", "crew")
+
+
+class FlightListSerializer(FlightSerializer):
+    airplane = serializers.CharField(source="airplane.name", read_only=True)
+    route = serializers.CharField(source="route.__str__", read_only=True)
+    departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
+    crew = serializers.SlugRelatedField(
+        many=True, read_only=True, slug_field="full_name")
+
+
+class FlightDetailSerializer(FlightSerializer):
+    airplane = AirplaneListSerializer(read_only=True, many=False)
+    route = RouteListSerializer(read_only=True, many=False)
+    crew = CrewDetailSerializer(many=True, read_only=True)
+
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:

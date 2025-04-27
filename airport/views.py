@@ -157,3 +157,13 @@ class TicketViewSet(viewsets.ModelViewSet):
 
     queryset = models.Ticket.objects.all()
     serializer_class = serializers.TicketSerializer
+
+    def get_serializer_class(self) -> ModelSerializer:
+        """Return the appropriate serializer class based on the request."""
+
+        if self.action == "list":
+            return serializers.TicketListSerializer
+        if self.action == "retrieve":
+            return serializers.TicketDetailSerializer
+
+        return super().get_serializer_class()

@@ -65,7 +65,7 @@ class AirplaneTypeSerializer(serializers.ModelSerializer):
 class AirplaneSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Airplane
-        fields = ("id", "name", "airplane_type", "image")
+        fields = ("id", "name", "airplane_type", "rows", "seats_in_row", "image")
 
 
 class AirplaneListSerializer(AirplaneSerializer):
@@ -134,3 +134,13 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Ticket
         fields = ("id", "flight", "order", "seat", "row")
+
+
+class TicketListSerializer(TicketSerializer):
+    flight = serializers.CharField(source="flight.__str__")
+    order = serializers.CharField(source="order.__str__")
+
+
+class TicketDetailSerializer(TicketSerializer):
+    flight = FlightListSerializer(many=False)
+    order = OrderSerializer(many=False)

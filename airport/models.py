@@ -98,7 +98,7 @@ class Airplane(models.Model):
         return self.rows * self.seats_in_row
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.airplane_type})"
+        return f"{self.name} Capacity: {self.capacity}"
 
 
 class Position(models.Model):
@@ -132,7 +132,7 @@ class Crew(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def __str__(self) -> str:
-        return f"{self.first_name} {self.last_name} ({self.position})"
+        return f"{self.full_name}"
 
 
 class Flight(models.Model):
@@ -150,7 +150,7 @@ class Flight(models.Model):
 
     def __str__(self) -> str:
         """Return the string representation of the flight."""
-        return f"{self.flight_number} ({self.route})"
+        return f"{self.flight_number}"
 
 
 class Order(models.Model):
@@ -161,7 +161,7 @@ class Order(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
-        return f"Order {self.id} by {self.user}"
+        return f"Order {self.id} created: {self.created_at}"
 
     class Meta:
         ordering = ["-created_at"]

@@ -7,6 +7,8 @@ from rest_framework import viewsets
 
 from rest_framework.serializers import ModelSerializer
 
+from django.db.models import Prefetch
+
 
 class CountryViewSet(viewsets.ModelViewSet):
     """ViewSet for the Country model."""
@@ -103,8 +105,12 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 class FlightViewSet(viewsets.ModelViewSet):
     """ViewSet for the Flight model."""
 
-    queryset = models.Flight.objects.select_related("route", "airplane").prefetch_related(
-        "crew", "crew__position", "airplane__airplane_type").all()
+    queryset = models.Flight.objects.select_related(
+        "airplane__airplane_type", "route", 
+        "route__sourse", "route__sourse__closest_big_city",  
+        "route__destination", "route__destination__closest_big_city").prefetch_related(
+        Prefetch("crew", queryset=models.Crew.objects.select_related("position")))
+    
     serializer_class = serializers.FlightSerializer
 
     def get_serializer_class(self) -> ModelSerializer:
@@ -150,16 +156,15 @@ class CrewViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     """ViewSet for the Order model."""
 
-    queryset = models.Order.objects.select_related(
-        "flight", "flight__route", "flight__airplane").prefetch_related(
-        "flight__crew", "flight__crew__position").all()
+    queryset = models.Order.objects.select_related("user")
     serializer_class = serializers.OrderSerializer
 
 
 class TicketViewSet(viewsets.ModelViewSet):
     """ViewSet for the Token model."""
 
-    queryset = models.Ticket.objects.all()
+    queryset = models.Ticket.objects.select_related(
+        "flight", "order")
     serializer_class = serializers.TicketSerializer
 
     def get_serializer_class(self) -> ModelSerializer:

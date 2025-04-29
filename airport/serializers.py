@@ -82,7 +82,6 @@ class AirplaneImageSerializer(serializers.ModelSerializer):
         fields = ("id", "image")
 
 
-
 class PositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Position
@@ -112,7 +111,7 @@ class CrewImageSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Flight
-        fields = ("id", "airplane", "route", "departure_time", "arrival_time", "crew")
+        fields = ("id", "airplane", "route", "crew", "departure_time", "arrival_time")
 
 
 class FlightListSerializer(FlightSerializer):

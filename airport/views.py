@@ -15,6 +15,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from django.db.models.query import QuerySet
+from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 
 class QueryParamUtils:
@@ -36,6 +38,7 @@ class CountryViewSet(viewsets.ModelViewSet):
 
     queryset = models.Country.objects.all()
     serializer_class = serializers.CountrySerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self) -> QuerySet:
         """Retrieve the country with filters"""
@@ -64,8 +67,9 @@ class CountryViewSet(viewsets.ModelViewSet):
 class CityViewSet(viewsets.ModelViewSet, QueryParamUtils):
     """ViewSet for the City model."""
 
-    queryset = models.City.objects.select_related("country").all()
+    queryset = models.City.objects.select_related("country")
     serializer_class = serializers.CitySerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -115,8 +119,9 @@ class CityViewSet(viewsets.ModelViewSet, QueryParamUtils):
 class AirportViewSet(viewsets.ModelViewSet, QueryParamUtils):
     """ViewSet for the Airport model."""
 
-    queryset = models.Airport.objects.select_related("closest_big_city").all()
+    queryset = models.Airport.objects.select_related("closest_big_city")
     serializer_class = serializers.AirportSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -179,9 +184,9 @@ class RouteViewSet(viewsets.ModelViewSet, QueryParamUtils):
         "source",
         "destination",
         "source__closest_big_city",
-        "destination__closest_big_city",
-    ).all()
+        "destination__closest_big_city")
     serializer_class = serializers.RouteSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -242,6 +247,7 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 
     queryset = models.AirplaneType.objects.all()
     serializer_class = serializers.AirplaneTypeSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self) -> QuerySet:
         """Retrieve the airplane type with filters"""
@@ -270,8 +276,9 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils):
     """ViewSet for the Airplane model."""
 
-    queryset = models.Airplane.objects.select_related("airplane_type").all()
+    queryset = models.Airplane.objects.select_related("airplane_type")
     serializer_class = serializers.AirplaneSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -355,10 +362,9 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
         "route__destination",
         "route__destination__closest_big_city",
     ).prefetch_related(
-        Prefetch("crew", queryset=models.Crew.objects.select_related("position"))
-    )
-
+        Prefetch("crew", queryset=models.Crew.objects.select_related("position")))
     serializer_class = serializers.FlightSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -438,6 +444,7 @@ class PositionViewSet(viewsets.ModelViewSet):
 
     queryset = models.Position.objects.all()
     serializer_class = serializers.PositionSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self) -> QuerySet:
         """Retrieve the position with filters"""
@@ -466,8 +473,9 @@ class PositionViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet, QueryParamUtils):
     """ViewSet for the Crew model."""
 
-    queryset = models.Crew.objects.select_related("position").all()
+    queryset = models.Crew.objects.select_related("position")
     serializer_class = serializers.CrewSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -531,6 +539,7 @@ class OrderViewSet(viewsets.ModelViewSet, QueryParamUtils):
 
     queryset = models.Order.objects.select_related("user")
     serializer_class = serializers.OrderSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self) -> QuerySet:
         """Retrieve the order with filters"""
@@ -561,6 +570,7 @@ class TicketViewSet(viewsets.ModelViewSet, QueryParamUtils):
 
     queryset = models.Ticket.objects.select_related("flight", "order")
     serializer_class = serializers.TicketSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""

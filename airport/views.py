@@ -16,7 +16,8 @@ from rest_framework.response import Response
 
 from django.db.models.query import QuerySet
 from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import action
 
 
 class QueryParamUtils:
@@ -31,6 +32,28 @@ class QueryParamUtils:
         from urllib.parse import unquote
 
         return [unquote(str_id.strip()) for str_id in qs.split(",")]
+    
+
+class ImageUploadMixin:
+    @action(
+    methods=["POST"],
+    detail=True,
+    url_path="upload-image",
+    permission_classes=(IsAdminUser,)
+    )
+    def upload_image(self, request: Request, pk: int=None) -> Response:
+        """Endpoint for uploading an image to a specific object"""
+
+        from rest_framework import status
+
+        obj = self.get_object()
+        serializer = self.get_serializer(obj, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CountryViewSet(viewsets.ModelViewSet):
@@ -273,7 +296,7 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils):
+class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
     """ViewSet for the Airplane model."""
 
     queryset = models.Airplane.objects.select_related("airplane_type")
@@ -317,7 +340,7 @@ class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils):
             queryset = queryset.filter(seats_in_row=seats_in_row)
 
         return queryset.distinct()
-
+    
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -339,11 +362,6 @@ class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils):
                 "seats_in_row",
                 type=OpenApiTypes.INT,
                 description="Filter by airplane seats_in_row (ex. ?seats_in_row=1)",
-            ),
-            OpenApiParameter(
-                "capacity",
-                type=OpenApiTypes.INT,
-                description="Filter by airplane capacity (ex. ?capacity=1)",
             ),
         ]
     )
@@ -470,7 +488,7 @@ class PositionViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class CrewViewSet(viewsets.ModelViewSet, QueryParamUtils):
+class CrewViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
     """ViewSet for the Crew model."""
 
     queryset = models.Crew.objects.select_related("position")

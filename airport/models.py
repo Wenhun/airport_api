@@ -150,7 +150,7 @@ class Flight(models.Model):
 
     def __str__(self) -> str:
         """Return the string representation of the flight."""
-        return f"{self.flight_number}"
+        return f"{self.flight_number} Departure: {self.departure_time}"
 
 
 class Order(models.Model):

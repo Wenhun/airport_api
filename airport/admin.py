@@ -3,7 +3,7 @@ from django.contrib import admin
 import airport.models as models
 from django.contrib.auth.models import Group
 
-admin.site.register(models.Coutry)
+admin.site.register(models.Country)
 admin.site.register(models.City)
 admin.site.register(models.Airport)
 admin.site.register(models.Route)

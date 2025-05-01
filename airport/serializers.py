@@ -4,7 +4,7 @@ import airport.models as models
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Coutry
+        model = models.Country
         fields = ("id", "name")
 
 
@@ -39,11 +39,11 @@ class AirportDetailSerializer(AirportSerializer):
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Route
-        fields = ("id", "sourse", "destination", "distance")
+        fields = ("id", "source", "destination", "distance")
 
 
 class RouteListSerializer(RouteSerializer):
-    sourse = serializers.CharField(source="sourse.detail_name", read_only=True)
+    sourse = serializers.CharField(source="source.detail_name", read_only=True)
     destination = serializers.CharField(source="destination.detail_name", read_only=True)
 
 
@@ -53,7 +53,7 @@ class RouteDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Route
-        fields = ("id", "sourse", "destination", "distance")
+        fields = ("id", "source", "destination", "distance")
 
 
 class AirplaneTypeSerializer(serializers.ModelSerializer):

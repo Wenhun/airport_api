@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 
-class Coutry(models.Model):
+class Country(models.Model):
     """Model representing a country."""
 
     name = models.CharField(max_length=255, unique=True)
@@ -28,7 +28,7 @@ class City(models.Model):
 
     name = models.CharField(max_length=255)
     country = models.ForeignKey(
-        Coutry, on_delete=models.CASCADE, related_name="cities")
+        Country, on_delete=models.CASCADE, related_name="cities")
     
     class Meta:
         verbose_name_plural = "cities"
@@ -56,7 +56,7 @@ class Airport(models.Model):
 class Route(models.Model):
     """Model representing a route."""
 
-    sourse = models.ForeignKey(
+    source = models.ForeignKey(
         Airport, related_name="source", on_delete=models.CASCADE)
     destination = models.ForeignKey(
         Airport, related_name="destination", on_delete=models.CASCADE
@@ -64,7 +64,7 @@ class Route(models.Model):
     distance = models.FloatField()
 
     def __str__(self) -> str:
-        return f"{self.sourse.detail_name} - {self.destination.detail_name}"
+        return f"{self.source.detail_name} - {self.destination.detail_name}"
 
 
 class AirplaneType(models.Model):

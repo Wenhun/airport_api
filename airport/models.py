@@ -28,8 +28,9 @@ class City(models.Model):
 
     name = models.CharField(max_length=255)
     country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name="cities")
-    
+        Country, on_delete=models.CASCADE, related_name="cities"
+    )
+
     class Meta:
         verbose_name_plural = "cities"
 
@@ -56,8 +57,7 @@ class Airport(models.Model):
 class Route(models.Model):
     """Model representing a route."""
 
-    source = models.ForeignKey(
-        Airport, related_name="source", on_delete=models.CASCADE)
+    source = models.ForeignKey(Airport, related_name="source", on_delete=models.CASCADE)
     destination = models.ForeignKey(
         Airport, related_name="destination", on_delete=models.CASCADE
     )
@@ -89,8 +89,7 @@ class Airplane(models.Model):
     rows = models.IntegerField()
     seats_in_row = models.IntegerField()
     airplane_type = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
-    image = models.ImageField(
-        upload_to=plane_image_file_path, blank=True, null=True)
+    image = models.ImageField(upload_to=plane_image_file_path, blank=True, null=True)
 
     @property
     def capacity(self) -> int:
@@ -123,8 +122,7 @@ class Crew(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
-    photo = models.ImageField(
-        upload_to=crew_photo_file_path, blank=True, null=True)
+    photo = models.ImageField(upload_to=crew_photo_file_path, blank=True, null=True)
 
     @property
     def full_name(self) -> str:
@@ -157,8 +155,7 @@ class Order(models.Model):
     """Model representing an order."""
 
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self) -> str:
         return f"Order {self.id} created: {self.created_at}"
@@ -192,10 +189,7 @@ class Ticket(models.Model):
 
     @staticmethod
     def validate_ticket(
-        row: int,
-        seat: int,
-        airplane: Airplane,
-        error_to_raise: type[ValidationError]
+        row: int, seat: int, airplane: Airplane, error_to_raise: type[ValidationError]
     ) -> None:
         for ticket_attr_value, ticket_attr_name, airplane_attr_name in [
             (row, "row", "rows"),

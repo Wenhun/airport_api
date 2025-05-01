@@ -43,12 +43,12 @@ class RouteSerializer(serializers.ModelSerializer):
 
 
 class RouteListSerializer(RouteSerializer):
-    sourse = serializers.CharField(source="source.detail_name", read_only=True)
+    source = serializers.CharField(source="source.detail_name", read_only=True)
     destination = serializers.CharField(source="destination.detail_name", read_only=True)
 
 
 class RouteDetailSerializer(serializers.ModelSerializer):
-    sourse = AirportListSerializer(read_only=True, many=False)
+    source = AirportListSerializer(read_only=True, many=False)
     destination = AirportListSerializer(read_only=True, many=False)
 
     class Meta:

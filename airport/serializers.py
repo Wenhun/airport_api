@@ -188,7 +188,6 @@ class FlightDetailSerializer(serializers.ModelSerializer):
         )
 
 
-
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
@@ -205,7 +204,7 @@ class TicketSerializer(serializers.ModelSerializer):
         models.Ticket.validate_ticket(
             attrs["row"], 
             attrs["seat"], 
-            attrs["movie_session"].cinema_hall, 
+            attrs["flight"].airplane, 
             ValidationError
         )
         return data

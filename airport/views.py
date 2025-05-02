@@ -18,6 +18,8 @@ from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
 from django.db.models import Count, F
+from rest_framework import mixins
+from rest_framework.viewsets import GenericViewSet
 
 
 class QueryParamUtils:
@@ -559,7 +561,10 @@ class CrewViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
         return super().list(request, *args, **kwargs)
 
 
-class OrderViewSet(viewsets.ModelViewSet, QueryParamUtils):
+class OrderViewSet(mixins.ListModelMixin, 
+                   mixins.CreateModelMixin,
+                   GenericViewSet, 
+                   QueryParamUtils):
     """ViewSet for the Order model."""
 
     queryset = models.Order.objects.select_related("user")
@@ -588,6 +593,9 @@ class OrderViewSet(viewsets.ModelViewSet, QueryParamUtils):
     )
     def list(self, request: Request, *args, **kwargs) -> Response:
         return super().list(request, *args, **kwargs)
+    
+    def perform_create(self, serializer: ModelSerializer) -> None:
+        serializer.save(user=self.request.user)
 
 
 class TicketViewSet(viewsets.ModelViewSet, QueryParamUtils):

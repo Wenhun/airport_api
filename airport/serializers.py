@@ -1,5 +1,6 @@
 from rest_framework import serializers
 import airport.models as models
+from rest_framework.exceptions import ValidationError
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -134,7 +135,7 @@ class FlightSerializer(serializers.ModelSerializer):
         )
 
 
-class FlightListSerializer(FlightSerializer):
+class FlightListSerializer(serializers.ModelSerializer):
     airplane = serializers.CharField(source="airplane.name", read_only=True)
     route = serializers.CharField(source="route.__str__", read_only=True)
     departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
@@ -142,12 +143,50 @@ class FlightListSerializer(FlightSerializer):
     crew = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="full_name"
     )
+    tickets_available = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.Flight
+        fields = (
+            "id",
+            "flight_number",
+            "airplane",
+            "route",
+            "crew",
+            "departure_time",
+            "arrival_time",
+            "tickets_available"
+        )
 
 
-class FlightDetailSerializer(FlightSerializer):
+class TicketSeatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Ticket
+        fields = ("row", "seat")
+
+
+class FlightDetailSerializer(serializers.ModelSerializer):
     airplane = AirplaneListSerializer(read_only=True, many=False)
     route = RouteListSerializer(read_only=True, many=False)
     crew = CrewDetailSerializer(many=True, read_only=True)
+
+    taken_places = TicketSeatsSerializer(
+        source="tickets", many=True, read_only=True
+    )
+
+    class Meta:
+        model = models.Flight
+        fields = (
+            "id",
+            "flight_number",
+            "airplane",
+            "route",
+            "crew",
+            "departure_time",
+            "arrival_time",
+            "taken_places"
+        )
+
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -160,6 +199,16 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Ticket
         fields = ("id", "flight", "order", "seat", "row")
+
+    def validate(self, attrs: dict) -> dict:
+        data = super(TicketSerializer, self).validate(attrs=attrs)
+        models.Ticket.validate_ticket(
+            attrs["row"], 
+            attrs["seat"], 
+            attrs["movie_session"].cinema_hall, 
+            ValidationError
+        )
+        return data
 
 
 class TicketListSerializer(TicketSerializer):

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 
 import airport.models as models
 import airport.serializers as serializers
@@ -18,6 +17,7 @@ from django.db.models.query import QuerySet
 from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import action
+from django.db.models import Count, F
 
 
 class QueryParamUtils:
@@ -404,6 +404,13 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
         arrival_time = self.request.query_params.get("arrival_time")
 
         queryset = self.queryset
+
+        if self.action == "list":
+            return queryset.select_related("airplane").annotate(
+                tickets_available=F("airplane__rows") * F("airplane__seats_in_row") - Count("tickets")
+            )
+        elif self.action in "retrieve":
+            return queryset.select_related()
 
         if flight_number:
             queryset = queryset.filter(flight_number__iexact=flight_number)

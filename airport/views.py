@@ -234,7 +234,6 @@ class RouteViewSet(viewsets.ModelViewSet, QueryParamUtils):
 
         if source:
             sources_ids = self._params_to_strs(source)
-            print(sources_ids)
             queryset = queryset.filter(source_id__in=sources_ids)
         if destination:
             destinations_ids = self._params_to_strs(destination)
@@ -386,6 +385,7 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
     serializer_class = serializers.FlightSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
+
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
 
@@ -407,13 +407,7 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
 
         queryset = self.queryset
 
-        if self.action == "list":
-            return queryset.select_related("airplane").annotate(
-                tickets_available=F("airplane__rows") * F("airplane__seats_in_row") - Count("tickets")
-            )
-        elif self.action in "retrieve":
-            return queryset.select_related()
-
+        # Apply filters
         if flight_number:
             queryset = queryset.filter(flight_number__iexact=flight_number)
 
@@ -430,6 +424,14 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
 
         if arrival_time:
             queryset = queryset.filter(arrival_time=arrival_time)
+
+        # Add annotations or additional logic based on the action
+        if self.action == "list":
+            queryset = queryset.select_related("airplane").annotate(
+                tickets_available=F("airplane__rows") * F("airplane__seats_in_row") - Count("tickets")
+            )
+        elif self.action == "retrieve":
+            queryset = queryset.select_related()
 
         return queryset.distinct()
 

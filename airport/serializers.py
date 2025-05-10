@@ -122,6 +122,8 @@ class CrewImageSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+    arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     class Meta:
         model = models.Flight
         fields = (
@@ -138,8 +140,6 @@ class FlightSerializer(serializers.ModelSerializer):
 class FlightListSerializer(serializers.ModelSerializer):
     airplane = serializers.CharField(source="airplane.name", read_only=True)
     route = serializers.CharField(source="route.__str__", read_only=True)
-    departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
-    arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     crew = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="full_name"
     )

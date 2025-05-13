@@ -2,7 +2,7 @@
 import airport.models as models
 import airport.serializers as serializers
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 
 from rest_framework.serializers import ModelSerializer
 
@@ -297,7 +297,13 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
+class AirplaneViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+    QueryParamUtils,
+    ImageUploadMixin):
     """ViewSet for the Airplane model."""
 
     queryset = models.Airplane.objects.select_related("airplane_type")
@@ -316,7 +322,7 @@ class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
         if self.action == "upload_image":
             return serializers.AirplaneImageSerializer
 
-        return super().get_serializer_class()
+        return serializers.AirplaneSerializer
 
     def get_queryset(self) -> QuerySet:
         """Retrieve the airplane with filters"""
@@ -341,6 +347,23 @@ class AirplaneViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
             queryset = queryset.filter(seats_in_row=seats_in_row)
 
         return queryset.distinct()
+    
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=[IsAdminUser],
+    )
+    def upload_image(self, request: Request, pk: int=None) -> Response:
+        """Endpoint for uploading image to specific movie"""
+        airplane = self.get_object()
+        serializer = self.get_serializer(airplane, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @extend_schema(
         parameters=[

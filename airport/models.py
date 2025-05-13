@@ -147,7 +147,12 @@ class Flight(models.Model):
 
     def __str__(self) -> str:
         """Return the string representation of the flight."""
-        return f"{self.flight_number} Departure: {self.departure_time}"
+        return (f"{self.flight_number}"
+                f"Departure: {
+                    self.departure_time 
+                    if isinstance(self.departure_time, str) 
+                    else self.departure_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+                }")
 
 
 class Order(models.Model):

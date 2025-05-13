@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from airport.models import Airplane, AirplaneType, Flight
+from airport.models import Airplane, AirplaneType
 from airport.serializers import (
     AirplaneListSerializer,
     AirplaneDetailSerializer,
@@ -18,7 +18,7 @@ from airport.serializers import (
 from airport.tests.base_tests import (
     BaseAuthenticatedModelApiTests,
     BaseUnauthenticatedModelApiTests,
-    BaseAdminModelApiTests
+    BaseAdminModelApiTests,
 )
 
 
@@ -173,9 +173,10 @@ class AirplaneImageUploadTests(TestCase):
                     "name": name,
                     "airplane_type": payload()["airplane_type"].id,
                     "rows": 20,
-                    "seats_in_row": 6
+                    "seats_in_row": 6,
                 },
-                format="multipart")
+                format="multipart",
+            )
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         airplane = Airplane.objects.get(name=name)
@@ -203,8 +204,6 @@ class AirplaneImageUploadTests(TestCase):
 
         self.assertIn("image", res.data["results"][0].keys())
 
-        self.assertIn("image", res.data["results"][0].keys())
-
     def test_put_airplane_not_allowed(self) -> None:
         put_payload = {
             "name": "Airplane 1",
@@ -212,13 +211,15 @@ class AirplaneImageUploadTests(TestCase):
             "rows": 20,
             "seats_in_row": 6,
         }
-                
+
         airplane = Airplane.objects.create(**payload())
         url = detail_url(airplane.id)
 
         res = self.client.put(url, put_payload)
 
-        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(
+            res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
     def test_delete_airplane_not_allowed(self) -> None:
         airplane = Airplane.objects.create(**payload())
@@ -226,4 +227,6 @@ class AirplaneImageUploadTests(TestCase):
 
         res = self.client.delete(url)
 
-        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(
+            res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED
+        )

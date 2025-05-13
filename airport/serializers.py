@@ -82,7 +82,9 @@ class AirplaneSerializer(serializers.ModelSerializer):
 
 
 class AirplaneListSerializer(AirplaneSerializer):
-    airplane_type = serializers.CharField(source="airplane_type.name", read_only=True)
+    airplane_type = serializers.CharField(
+        source="airplane_type.name", read_only=True
+    )
 
 
 class AirplaneDetailSerializer(AirplaneSerializer):
@@ -124,6 +126,7 @@ class CrewImageSerializer(serializers.ModelSerializer):
 class FlightSerializer(serializers.ModelSerializer):
     departure_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
     arrival_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M")
+
     class Meta:
         model = models.Flight
         fields = (
@@ -202,10 +205,10 @@ class TicketSerializer(serializers.ModelSerializer):
     def validate(self, attrs: dict) -> dict:
         data = super(TicketSerializer, self).validate(attrs=attrs)
         models.Ticket.validate_ticket(
-            attrs["row"], 
-            attrs["seat"], 
-            attrs["flight"].airplane, 
-            ValidationError
+            attrs["row"],
+            attrs["seat"],
+            attrs["flight"].airplane,
+            ValidationError,
         )
         return data
 

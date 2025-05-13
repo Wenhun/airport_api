@@ -43,7 +43,9 @@ class Airport(models.Model):
 
     code = models.CharField(max_length=3, unique=True, primary_key=True)
     name = models.CharField(max_length=255)
-    closest_big_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name="airports")
+    closest_big_city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name="airports"
+    )
 
     @property
     def detail_name(self) -> str:
@@ -57,9 +59,13 @@ class Airport(models.Model):
 class Route(models.Model):
     """Model representing a route."""
 
-    source = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="source")
+    source = models.ForeignKey(
+        Airport, on_delete=models.CASCADE, related_name="source")
     destination = models.ForeignKey(
-        Airport, on_delete=models.CASCADE, related_name="destination")
+        Airport,
+        on_delete=models.CASCADE,
+        related_name="destination",
+    )
     distance = models.FloatField()
 
     def __str__(self) -> str:
@@ -87,8 +93,10 @@ class Airplane(models.Model):
     name = models.CharField(max_length=255)
     rows = models.IntegerField()
     seats_in_row = models.IntegerField()
-    airplane_type = models.ForeignKey(AirplaneType, on_delete=models.CASCADE, related_name="airplanes")
-    image = models.ImageField(upload_to=plane_image_file_path, blank=True, null=True)
+    airplane_type = models.ForeignKey(
+        AirplaneType, on_delete=models.CASCADE, related_name="airplanes")
+    image = models.ImageField(
+        upload_to=plane_image_file_path, blank=True, null=True)
 
     @property
     def capacity(self) -> int:
@@ -120,8 +128,10 @@ class Crew(models.Model):
 
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    position = models.ForeignKey(Position, on_delete=models.CASCADE, related_name="crews")
-    photo = models.ImageField(upload_to=crew_photo_file_path, blank=True, null=True)
+    position = models.ForeignKey(
+        Position, on_delete=models.CASCADE, related_name="crews")
+    photo = models.ImageField(
+        upload_to=crew_photo_file_path, blank=True, null=True)
 
     @property
     def full_name(self) -> str:
@@ -136,9 +146,11 @@ class Flight(models.Model):
     """Model representing a flight."""
 
     flight_number = models.CharField(max_length=255, unique=True)
-    route = models.ForeignKey(Route, on_delete=models.CASCADE, related_name="flights")
+    route = models.ForeignKey(
+        Route, on_delete=models.CASCADE, related_name="flights")
     crew = models.ManyToManyField(Crew, db_index=True, related_name="flights")
-    airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="flights")
+    airplane = models.ForeignKey(
+        Airplane, on_delete=models.CASCADE, related_name="flights")
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
 
@@ -147,19 +159,20 @@ class Flight(models.Model):
 
     def __str__(self) -> str:
         """Return the string representation of the flight."""
-        return (f"{self.flight_number}"
-                f"Departure: {
-                    self.departure_time 
-                    if isinstance(self.departure_time, str) 
-                    else self.departure_time.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }")
+        return (
+            f"{self.flight_number} Departure: "
+            f"{self.departure_time.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+        )
 
 
 class Order(models.Model):
     """Model representing an order."""
 
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orders")
 
     def __str__(self) -> str:
         return f"Order {self.id} created: {self.created_at}"
@@ -180,11 +193,13 @@ class Ticket(models.Model):
         F = 6, "F"
         G = 7, "G"
         H = 8, "H"
-        I = 9, "I"
+        I_ = 9, "I"  # Renamed to avoid ambiguity
         J = 10, "J"
 
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="tickets")
-    flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="tickets")
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name="tickets")
+    flight = models.ForeignKey(
+        Flight, on_delete=models.CASCADE, related_name="tickets")
     row = models.IntegerField()
     seat = models.IntegerField(choices=SeatChoices.choices)
 
@@ -193,7 +208,10 @@ class Ticket(models.Model):
 
     @staticmethod
     def validate_ticket(
-        row: int, seat: int, airplane: Airplane, error_to_raise: type[ValidationError]
+        row: int,
+        seat: int,
+        airplane: Airplane,
+        error_to_raise: type[ValidationError]
     ) -> None:
         for ticket_attr_value, ticket_attr_name, airplane_attr_name in [
             (row, "row", "rows"),
@@ -205,8 +223,7 @@ class Ticket(models.Model):
                     {
                         ticket_attr_name: f"{ticket_attr_name} "
                         f"number must be in available range: "
-                        f"(1, {airplane_attr_name}): "
-                        f"(1, {count_attrs})"
+                        f"(1, {airplane_attr_name}): (1, {count_attrs})"
                     }
                 )
 

@@ -1,4 +1,3 @@
-
 import airport.models as models
 import airport.serializers as serializers
 
@@ -34,16 +33,16 @@ class QueryParamUtils:
         from urllib.parse import unquote
 
         return [unquote(str_id.strip()) for str_id in qs.split(",")]
-    
+
 
 class ImageUploadMixin:
     @action(
-    methods=["POST"],
-    detail=True,
-    url_path="upload-image",
-    permission_classes=(IsAdminUser,)
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=(IsAdminUser,),
     )
-    def upload_image(self, request: Request, pk: int=None) -> Response:
+    def upload_image(self, request: Request, pk: int = None) -> Response:
         """Endpoint for uploading an image to a specific object"""
 
         from rest_framework import status
@@ -175,7 +174,9 @@ class AirportViewSet(viewsets.ModelViewSet, QueryParamUtils):
 
         if closest_big_city:
             closest_big_cities_ids = self._params_to_ints(closest_big_city)
-            queryset = queryset.filter(closest_big_city__id__in=closest_big_cities_ids)
+            queryset = queryset.filter(
+                closest_big_city__id__in=closest_big_cities_ids
+            )
 
         return queryset.distinct()
 
@@ -189,12 +190,14 @@ class AirportViewSet(viewsets.ModelViewSet, QueryParamUtils):
             OpenApiParameter(
                 "name",
                 type=OpenApiTypes.STR,
-                description="Filter by airport name (ex. ?name='International Airport')",
+                description=("Filter by airport name "
+                             "(ex. ?name='International Airport')"),
             ),
             OpenApiParameter(
                 "closest_big_city",
                 type={"type": "list", "items": {"type": "number"}},
-                description="Filter by closest_big_city id (ex. ?closest_big_city=1,2)",
+                description=("Filter by closest_big_city id "
+                             "(ex. ?closest_big_city=1,2)"),
             ),
         ]
     )
@@ -253,7 +256,8 @@ class RouteViewSet(viewsets.ModelViewSet, QueryParamUtils):
             OpenApiParameter(
                 "destination",
                 type={"type": "list", "items": {"type": "string"}},
-                description="Filter by destination id (ex. ?destination=LAX,ORD)",
+                description=("Filter by destination id "
+                             "(ex. ?destination=LAX,ORD)"),
             ),
             OpenApiParameter(
                 "distance",
@@ -289,7 +293,8 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "name",
                 type=OpenApiTypes.STR,
-                description="Filter by airplane type name (ex. ?name='Regional')",
+                description=("Filter by airplane type name"
+                             "(ex. ?name='Regional')"),
             ),
         ]
     )
@@ -303,7 +308,8 @@ class AirplaneViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
     QueryParamUtils,
-    ImageUploadMixin):
+    ImageUploadMixin,
+):
     """ViewSet for the Airplane model."""
 
     queryset = models.Airplane.objects.select_related("airplane_type")
@@ -338,7 +344,8 @@ class AirplaneViewSet(
 
         if airplane_type:
             airplane_types_ids = self._params_to_ints(airplane_type)
-            queryset = queryset.filter(airplane_type__id__in=airplane_types_ids)
+            queryset = queryset.filter(
+                airplane_type__id__in=airplane_types_ids)
 
         if rows:
             queryset = queryset.filter(rows=rows)
@@ -347,14 +354,14 @@ class AirplaneViewSet(
             queryset = queryset.filter(seats_in_row=seats_in_row)
 
         return queryset.distinct()
-    
+
     @action(
         methods=["POST"],
         detail=True,
         url_path="upload-image",
         permission_classes=[IsAdminUser],
     )
-    def upload_image(self, request: Request, pk: int=None) -> Response:
+    def upload_image(self, request: Request, pk: int = None) -> Response:
         """Endpoint for uploading image to specific movie"""
         airplane = self.get_object()
         serializer = self.get_serializer(airplane, data=request.data)
@@ -364,18 +371,20 @@ class AirplaneViewSet(
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @extend_schema(
         parameters=[
             OpenApiParameter(
                 "name",
                 type=OpenApiTypes.STR,
-                description="Filter by airplane name (ex. ?airplane='A330')",
+                description=("Filter by airplane name"
+                             "(ex. ?airplane='A330')"),
             ),
             OpenApiParameter(
                 "airplane_type",
                 type={"type": "list", "items": {"type": "number"}},
-                description="Filter by airplane_type id (ex. ?airplane_type=1,2)",
+                description=("Filter by airplane_type id "
+                             "(ex. ?airplane_type=1,2)"),
             ),
             OpenApiParameter(
                 "rows",
@@ -385,7 +394,8 @@ class AirplaneViewSet(
             OpenApiParameter(
                 "seats_in_row",
                 type=OpenApiTypes.INT,
-                description="Filter by airplane seats_in_row (ex. ?seats_in_row=1)",
+                description=("Filter by airplane "
+                             "seats_in_row (ex. ?seats_in_row=1)"),
             ),
         ]
     )
@@ -404,10 +414,10 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
         "route__destination",
         "route__destination__closest_big_city",
     ).prefetch_related(
-        Prefetch("crew", queryset=models.Crew.objects.select_related("position")))
+        Prefetch("crew",
+                 queryset=models.Crew.objects.select_related("position")))
     serializer_class = serializers.FlightSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
-
 
     def get_serializer_class(self) -> ModelSerializer:
         """Return the appropriate serializer class based on the request."""
@@ -451,7 +461,10 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
         # Add annotations or additional logic based on the action
         if self.action == "list":
             queryset = queryset.select_related("airplane").annotate(
-                tickets_available=F("airplane__rows") * F("airplane__seats_in_row") - Count("tickets")
+                tickets_available=(
+                    F("airplane__rows") * F("airplane__seats_in_row")
+                    - Count("tickets")
+                )
             )
         elif self.action == "retrieve":
             queryset = queryset.select_related()
@@ -463,7 +476,8 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
             OpenApiParameter(
                 "flight_number",
                 type=OpenApiTypes.STR,
-                description="Filter by flight number (ex. ?flight_number='AA123')",
+                description=("Filter by flight number "
+                             "(ex. ?flight_number='AA123')"),
             ),
             OpenApiParameter(
                 "airplane",
@@ -478,12 +492,14 @@ class FlightViewSet(viewsets.ModelViewSet, QueryParamUtils):
             OpenApiParameter(
                 "departure_time",
                 type=OpenApiTypes.DATETIME,
-                description="Filter by departure time (ex. ?departure_time=2023-10-01T12:00:00Z)",
+                description=("Filter by departure time "
+                             "(ex. ?departure_time=2023-10-01T12:00:00Z)"),
             ),
             OpenApiParameter(
                 "arrival_time",
                 type=OpenApiTypes.DATETIME,
-                description="Filter by arrival time (ex. ?arrival_time=2023-10-01T14:00:00Z)",
+                description=("Filter by arrival time "
+                             "(ex. ?arrival_time=2023-10-01T14:00:00Z)"),
             ),
         ]
     )
@@ -526,9 +542,10 @@ class CrewViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet, 
-    QueryParamUtils, 
-    ImageUploadMixin):
+    viewsets.GenericViewSet,
+    QueryParamUtils,
+    ImageUploadMixin,
+):
     """ViewSet for the Crew model."""
 
     queryset = models.Crew.objects.select_related("position")
@@ -548,14 +565,14 @@ class CrewViewSet(
             return serializers.CrewImageSerializer
 
         return super().get_serializer_class()
-    
+
     @action(
         methods=["POST"],
         detail=True,
         url_path="upload-image",
         permission_classes=[IsAdminUser],
     )
-    def upload_image(self, request: Request, pk: int=None) -> Response:
+    def upload_image(self, request: Request, pk: int = None) -> Response:
         """Endpoint for uploading image to specific movie"""
         crew = self.get_object()
         serializer = self.get_serializer(crew, data=request.data)
@@ -591,7 +608,8 @@ class CrewViewSet(
             OpenApiParameter(
                 "first_name",
                 type=OpenApiTypes.STR,
-                description="Filter by crew first name (ex. ?first_name='John')",
+                description=("Filter by crew first name"
+                             "(ex. ?first_name='John')"),
             ),
             OpenApiParameter(
                 "last_name",
@@ -609,9 +627,9 @@ class CrewViewSet(
         return super().list(request, *args, **kwargs)
 
 
-class OrderViewSet(mixins.ListModelMixin, 
+class OrderViewSet(mixins.ListModelMixin,
                    mixins.CreateModelMixin,
-                   GenericViewSet, 
+                   GenericViewSet,
                    QueryParamUtils):
     """ViewSet for the Order model."""
 
@@ -641,7 +659,7 @@ class OrderViewSet(mixins.ListModelMixin,
     )
     def list(self, request: Request, *args, **kwargs) -> Response:
         return super().list(request, *args, **kwargs)
-    
+
     def perform_create(self, serializer: ModelSerializer) -> None:
         serializer.save(user=self.request.user)
 

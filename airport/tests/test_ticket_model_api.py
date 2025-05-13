@@ -90,7 +90,7 @@ class AuthenticatedCityApiTests(TestCase, BaseAuthenticatedModelApiTests):
 
     def test_create_object_forbidden(self, **kwargs) -> None:
         super().test_create_object_forbidden(
-            payload = {
+            payload={
                 "order": payload()["order"].id,
                 "flight": payload()["flight"].id,
                 "row": 1,

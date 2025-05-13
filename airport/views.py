@@ -522,7 +522,13 @@ class PositionViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class CrewViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
+class CrewViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet, 
+    QueryParamUtils, 
+    ImageUploadMixin):
     """ViewSet for the Crew model."""
 
     queryset = models.Crew.objects.select_related("position")
@@ -542,6 +548,23 @@ class CrewViewSet(viewsets.ModelViewSet, QueryParamUtils, ImageUploadMixin):
             return serializers.CrewImageSerializer
 
         return super().get_serializer_class()
+    
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=[IsAdminUser],
+    )
+    def upload_image(self, request: Request, pk: int=None) -> Response:
+        """Endpoint for uploading image to specific movie"""
+        crew = self.get_object()
+        serializer = self.get_serializer(crew, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self) -> QuerySet:
         """Retrieve the crew with filters"""
